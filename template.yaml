@@ -55,7 +55,7 @@ spec:
       action: roadiehq:utils:fs:append
       input:
         path: accounts/infosec/users.tf
-        content: |-
+        content: |
 
           module "user_${{parameters.firstName | lower | trim}}${{parameters.lastName | trim | truncate(1, true, "")}}" {
             source    = "../../modules/iam-user-group"
@@ -63,9 +63,9 @@ spec:
 
             user_groups = [
               aws_iam_group.all_iam_users.name,
-              {% for group in parameters.groups -%}
+              {% for group in parameters.groups ~%}
               ${{group}},
-              {% endfor %}
+              {% endfor ~%}
             ]
           }
 
