@@ -48,7 +48,7 @@ spec:
       name: Fetch Base
       action: fetch:plain
       input:
-        url: https://github.com/liatrio/aws-terraform
+        url: https://github.com/craigkilpatrick/aws-user
 
     - id: appendFile
       name: Append to File
