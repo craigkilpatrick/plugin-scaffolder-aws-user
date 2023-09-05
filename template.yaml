@@ -1,0 +1,91 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: github-aws-user-creator
+  title: Create an AWS User
+  description: Create a terraform module for an AWS IAM User in aws-terraform.
+spec:
+  owner: backstage/techdocs-core
+  type: service
+
+  parameters:
+    - title: Specify User Info
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          title: First Name
+          type: string
+          description: The first name of the user to be created
+        lastName:
+          title: Last Name
+          type: string
+          description: The first name of the user to be created
+
+    - title: Select User Groups
+      required:
+        - groups
+      properties:
+        groups:
+          title: Select groups
+          type: array
+          items:
+            type: string
+            enum:
+              - aws_iam_group.sandbox_developers.name
+              - aws_iam_group.non_prod_developers.name
+              - aws_iam_group.prod_developers.name
+            enumNames:
+              - Sandbox Developers
+              - Non-Prod Developers
+              - Prod Developers
+          uniqueItems: true
+          ui:widget: checkboxes
+  
+  steps:
+    - id: fetch-base
+      name: Fetch Base
+      action: fetch:plain
+      input:
+        url: https://github.com/liatrio/aws-terraform
+
+    - id: appendFile
+      name: Append to File
+      action: roadiehq:utils:fs:append
+      input:
+        path: accounts/infosec/users.tf
+        content: |
+
+          module "user_${{parameters.firstName | lower | trim}}${{parameters.lastName | trim | truncate(1, true, "")}}" {
+            source    = "../../modules/iam-user-group"
+            user_name = "${{parameters.firstName | capitalize}}${{parameters.lastName | capitalize}}"
+
+            user_groups = [
+              aws_iam_group.all_iam_users.name,
+              {% for group in parameters.groups -%}
+              ${{group}},
+              {% endfor -%}
+            ]
+          }
+
+    - id: publish
+      name: Publish
+      action: publish:github:pull-request
+      input:
+        repoUrl: github.com?repo=aws-terraform&owner=liatrio
+        title: "Creating an AWS IAM User for ${{parameters.firstName | capitalize}} ${{parameters.lastName | capitalize}}"
+        branchName: "${{parameters.firstName | lower | trim}}${{parameters.lastName | trim | truncate(1, true, '')}}-create"
+        description: "Adding the TF module for the AWS IAM User for ${{parameters.firstName | capitalize}} ${{parameters.lastName | capitalize}}."
+  
+  output:
+    links:
+      - url: ${{steps.publish.output.remoteUrl}}
+        title: "Go to Pull Request"
+    text:
+      - title: Additional information
+        content: |
+
+          For admin roles, go to the PR, and add the additional roles for approval. 
+
+          Please reach out to [Jeremy Hayes](jeremy@liatrio.com)for your temporary password once your PR has been merged.
