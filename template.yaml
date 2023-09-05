@@ -73,7 +73,7 @@ spec:
       name: Publish
       action: publish:github:pull-request
       input:
-        repoUrl: github.com?repo=aws-terraform&owner=liatrio
+        repoUrl: github.com?repo=aws-user&owner=craigkilpatrick
         title: "Creating an AWS IAM User for ${{parameters.firstName | capitalize}} ${{parameters.lastName | capitalize}}"
         branchName: "${{parameters.firstName | lower | trim}}${{parameters.lastName | trim | truncate(1, true, '')}}-create"
         description: "Adding the TF module for the AWS IAM User for ${{parameters.firstName | capitalize}} ${{parameters.lastName | capitalize}}."
