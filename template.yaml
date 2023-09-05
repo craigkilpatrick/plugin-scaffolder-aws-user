@@ -63,9 +63,9 @@ spec:
 
             user_groups = [
               aws_iam_group.all_iam_users.name,
-              {%~ for group in parameters.groups ~%}
+              {%- for group in parameters.groups -%}
               ${{group}},
-              {%~ endfor ~%}
+              {%- endfor -%}
             ]
           }
 
